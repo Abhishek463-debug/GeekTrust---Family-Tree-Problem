@@ -1,0 +1,490 @@
+class FamilyTree:
+    def __init__(self, name, gender):
+        self.name = name
+        self.gender = gender
+        self.spouse = None
+        self.father = None
+        self.mother = None
+        self.maternal_grandmother = None
+        self.maternal_grandfather = None
+        self.paternal_grandmother = None
+        self.paternal_grandfather = None
+        self.nephews = []
+        self.nieces = []
+        self.grandkids = []
+        self.children = []
+        self.sons = []
+        self.daughters = []
+        self.brothers = []
+        self.sisters = []
+        self.siblings = []
+        self.paternal_uncles = []
+        self.paternal_aunts = []
+        self.maternal_uncles = []
+        self.maternal_aunts = []
+        self.sis_in_law = []
+        self.bro_in_law = []
+        family_members.append(self)
+        family_members_names.append(self.name)
+
+
+    def add_spouse(self, other):
+        self.spouse = other
+        other.spouse = self
+
+
+    def add_child(self, child):
+        #Child's mother and father
+        if self.name not in family_members_names:
+            return "PERSON_NOT_FOUND"
+        if self.gender == "Male":
+            return "CHILD_ADDITION_FAILED"
+        else:
+            child.mother = self
+            child.father = self.spouse
+
+
+        #Whether child is son or daughter
+        if child.gender == "Male":
+            self.sons.append(child)
+        else:
+            self.daughters.append(child)
+
+            # Updating Father and Mother Nodes
+            if child.gender == "Male":
+                if child not in child.father.sons:
+                    child.father.sons.append(child)
+                if child not in child.mother.sons:
+                    child.mother.sons.append(child)
+                if child not in child.father.children:
+                    child.father.children.append(child)
+                if child not in child.mother.children:
+                    child.mother.children.append(child)
+            elif child.gender == "Female":
+                if child not in child.father.daughters:
+                    child.father.daughters.append(child)
+                if child not in child.mother.daughters:
+                    child.mother.daughters.append(child)
+                if child not in child.father.children:
+                    child.father.children.append(child)
+                if child not in child.mother.children:
+                    child.mother.children.append(child)
+
+        #Child's brothers and sisters
+        for person in self.children:
+            if person.gender == "Male" and person not in child.brothers:
+                child.brothers.append(person)
+            elif person.gender == "Female" and person not in child.sisters:
+                child.sisters.append(person)
+        child.siblings = child.brothers + child.sisters
+
+        #Update brothers and sisters for other nodes
+        if child.gender == "Male":
+            for person in child.brothers:
+                if child not in person.brothers:
+                    person.brothers.append(child)
+                if child not in person.siblings:
+                    person.siblings.append(child)
+            for person in child.sisters:
+                if child not in person.brothers:
+                    person.brothers.append(child)
+                if child not in person.siblings:
+                    person.siblings.append(child)
+        else:
+            for person in child.brothers:
+                if child not in person.sisters:
+                    person.sisters.append(child)
+                if child not in person.siblings:
+                    person.siblings.append(child)
+            for person in child.sisters:
+                if child not in person.sisters:
+                    person.sisters.append(child)
+                if child not in person.siblings:
+                    person.siblings.append(child)
+        self.children.append(child)
+
+        #Child's grandparents
+        if self.gender == "Male":
+            if self.father:
+                child.paternal_grandfather = self.father
+                child.paternal_grandfather.grandkids.append(child)
+            if self.mother:
+                child.paternal_grandmother = self.mother
+                child.paternal_grandmother.grandkids.append(child)
+        else: #elif self.gender == "Female":
+            if self.father:
+                child.maternal_grandfather = self.father
+                child.maternal_grandfather.grandkids.append(child)
+            if self.mother:
+                child.maternal_grandmother = self.mother
+                child.maternal_grandmother.grandkids.append(child)
+
+
+
+        #Paternal Aunts and Uncles, Maternal Aunts and Uncles
+        if self.gender == "Male":
+            if self.brothers:
+                child.paternal_uncles = self.brothers
+            if self.sisters:
+                child.paternal_aunts = self.sisters
+        else:
+            if self.brothers:
+                child.maternal_uncles = self.brothers
+            if self.sisters:
+                child.maternal_aunts = self.sisters
+
+        #Nieces and Nephews
+        for person in self.siblings:
+            for boy in self.sons:
+                if boy not in person.nephews:
+                    person.nephews.append(boy)
+            for girl in self.daughters:
+                if girl not in person.nieces:
+                    person.nieces.append(girl)
+
+
+        #UPDATING NIECES AND NEPHEW AND UNCLES AND AUNTS
+        for person in child.siblings:
+            if child.gender == "Male" and person.gender == "Male":
+                for kid in person.sons:
+                    if kid not in child.nephews:
+                        child.nephews.append(kid)
+                    if child not in kid.paternal_uncles:
+                        kid.paternal_uncles.append(child)
+                for kid in person.daughters:
+                    if kid not in child.nieces:
+                        child.nieces.append(kid)
+                    if child not in kid.paternal_uncles:
+                        kid.paternal_uncles.append(child)
+            if child.gender == "Female" and person.gender == "Male":
+                for kid in person.sons:
+                    if kid not in child.nephews:
+                        child.nephews.append(kid)
+                    if child not in kid.paternal_aunts:
+                        kid.paternal_aunts.append(child)
+                for kid in person.daughters:
+                    if kid not in child.nieces:
+                        child.nieces.append(kid)
+                    if child not in kid.paternal_aunts:
+                        kid.paternal_aunts.append(child)
+            if child.gender == "Male" and person.gender == "Female":
+                for kid in person.sons:
+                    if kid not in child.nephews:
+                        child.nephews.append(kid)
+                    if child not in kid.maternal_uncles:
+                        kid.maternal_uncles.append(child)
+                for kid in person.daughters:
+                    if kid not in child.nieces:
+                        child.nieces.append(kid)
+                    if child not in kid.maternal_uncles:
+                        kid.maternal_uncles.append(child)
+            if child.gender == "Female" and person.gender == "Female":
+                for kid in person.sons:
+                    if kid not in child.nephews:
+                        child.nephews.append(kid)
+                    if child not in kid.maternal_aunts:
+                        kid.maternal_aunts.append(child)
+                for kid in person.daughters:
+                    if kid not in child.nieces:
+                        child.nieces.append(kid)
+                    if child not in kid.maternal_aunts:
+                        kid.maternal_aunts.append(child)
+
+        if child.father:
+            for person in child.father.siblings:
+                if person.gender == "Male":
+                    if person not in child.paternal_uncles:
+                        child.paternal_uncles.append(person)
+                elif person.gender == "Female":
+                    if person not in child.paternal_aunts:
+                        child.paternal_aunts.append(person)
+                if child.gender == "Male":
+                    if child not in person.nephews:
+                        person.nephews.append(child)
+                else:
+                    if child not in person.nieces:
+                        person.nieces.append(child)
+
+        if child.mother:
+            for person in child.mother.siblings:
+                if person.gender == "Male":
+                    if person not in child.maternal_uncles:
+                        child.maternal_uncles.append(person)
+                elif person.gender == "Female":
+                    if person not in child.maternal_aunts:
+                        child.maternal_aunts.append(person)
+                if child.gender == "Male":
+                    if child not in person.nephews:
+                        person.nephews.append(child)
+                else:
+                    if child not in person.nieces:
+                        person.nieces.append(child)
+
+
+
+        #Sisters-in-law and Brothers-in-law (Spouse condition)
+        if self.spouse:
+            for sister in self.spouse.sisters:
+                if sister not in self.sis_in_law:
+                    self.sis_in_law.append(sister)
+            for brother in self.spouse.brothers:
+                if brother not in self.bro_in_law:
+                    self.bro_in_law.append(brother)
+
+        #Updating Spouse Condition for previous nodes
+        for person in child.siblings:
+            if person.spouse:
+                if child.gender == "Male":
+                    if child not in person.spouse.bro_in_law:
+                        person.spouse.bro_in_law.append(child)
+                else:
+                    if child not in person.spouse.sis_in_law:
+                        person.spouse.sis_in_law.append(child)
+        for person in child.siblings:
+            if person.spouse:
+                if person.spouse.gender == "Male":
+                    if person.spouse not in child.bro_in_law:
+                        child.bro_in_law.append(person.spouse)
+                else:
+                    if person.spouse not in child.sis_in_law:
+                        child.sis_in_law.append(person.spouse)
+
+         #Sisters-in-law and Brothers-in-law (Siblings condition)
+        for person in child.brothers:
+            if person.spouse and person.spouse not in child.sis_in_law:
+                child.sis_in_law.append(person.spouse)
+        for person in child.sisters:
+            if person.spouse and person.spouse not in child.bro_in_law:
+                child.bro_in_law.append(person.spouse)
+
+        #Updating previous nodes (Bro-in-law and Sis-in-law)
+        if child.gender == "Male":
+            for person in child.brothers:
+                if child.spouse and child.spouse not in person.sis_in_law:
+                    person.sis_in_law.append(child.spouse)
+            for person in child.sisters:
+                if child.spouse and child.spouse not in person.sis_in_law:
+                    person.sis_in_law.append(child.spouse)
+        else:
+            for person in child.brothers:
+                if child.spouse and child.spouse not in person.bro_in_law:
+                    person.bro_in_law.append(child.spouse)
+            for person in child.sisters:
+                if child.spouse and child.spouse not in person.bro_in_law:
+                    person.bro_in_law.append(child.spouse)
+
+        if self.name in family_members_names:
+            if self.gender == "Female":
+                return "CHILD_ADDITION_SUCCEEDED"
+            else:
+                return "CHILD_ADDITION_FAILED"
+        return "PERSON_NOT_FOUND"
+
+
+    #Find the relative of self based on relation
+    def get_relationship(self, relation):
+        if self.name not in family_members_names:
+            return "PERSON_NOT_FOUND"
+        relation = relation.lower()
+        if relation == "spouse":
+            if self.spouse:
+                return self.spouse.name
+            return None
+        elif relation == "mother":
+            if self.mother:
+                return self.mother.name
+            return None
+        elif relation == "father":
+            if self.father:
+                return self.father.name
+            return None
+        elif relation == "maternal-grandmother":
+            if self.maternal_grandmother:
+                return self.maternal_grandmother.name
+            return None
+        elif relation == "maternal-grandfather":
+            if self.maternal_grandfather:
+                return self.maternal_grandfather.name
+            return None
+        elif relation == "paternal-grandmother":
+            if self.paternal_grandmother:
+                return self.paternal_grandmother.name
+            return None
+        elif relation == "paternal-grandfather":
+            if self.paternal_grandfather:
+                return self.paternal_grandfather.name
+            return None
+        elif relation == "nephew":
+            if self.nephews:
+                names = ""
+                for nephew in self.nephews:
+                    names += nephew.name + " "
+                return names
+            return None
+        elif relation == "niece":
+            if self.nieces:
+                names = ""
+                for niece in self.nieces:
+                    names += niece.name + " "
+                return names
+            return None
+        elif relation == "grandkids":
+            if self.grandkids:
+                names = ""
+                for grandkid in self.grandkids:
+                    names += grandkid.name + " "
+                return names
+            return None
+
+        elif relation == "children":
+            if self.children:
+                names = ""
+                for child in self.children:
+                    names += child.name + " "
+                return names
+            return None
+        elif relation == "son":
+            if self.sons:
+                names = ""
+                for son in self.sons:
+                    names += son.name + " "
+                return names
+            return None
+        elif relation == "daughter":
+            if self.daughters:
+                names = ""
+                for daughter in self.daughters:
+                    names += daughter.name + " "
+                return names
+            return None
+        elif relation == "brothers":
+            if self.brothers:
+                names = ""
+                for brother in self.brothers:
+                    names += brother.name + " "
+                return names
+            return None
+        elif relation == "sisters":
+            if self.sisters:
+                names = ""
+                for sister in self.sisters:
+                    names += sister.name + " "
+                return names
+            return None
+        elif relation == "siblings":
+            if self.siblings:
+                names = ""
+                for sibling in self.siblings:
+                    names += sibling.name + " "
+                return names
+            return None
+        elif relation == "paternal-uncle":
+            if self.paternal_uncles:
+                names = ""
+                for paternal_uncle in self.paternal_uncles:
+                    names += paternal_uncle.name + " "
+                return names
+            return None
+        elif relation == "paternal-aunt":
+            if self.paternal_aunts:
+                names = ""
+                for paternal_aunt in self.paternal_aunts:
+                    names += paternal_aunt.name + " "
+                return names
+            return None
+        elif relation == "maternal-uncle":
+            if self.maternal_uncles:
+                names = ""
+                for maternal_uncle in self.maternal_uncles:
+                    names += maternal_uncle.name + " "
+                return names
+            return None
+        elif relation == "maternal-aunt":
+            if self.maternal_aunts:
+                names = ""
+                for maternal_aunt in self.maternal_aunts:
+                    names += maternal_aunt.name + " "
+                return names
+            return None
+        elif relation == "sister-in-law":
+            if self.sis_in_law:
+                names = ""
+                for sisinlaw in self.sis_in_law:
+                    names += sisinlaw.name + " "
+                return names
+            return None
+        elif relation == "brother-in-law":
+            if self.bro_in_law:
+                names = ""
+                for broinlaw in self.bro_in_law:
+                    names += broinlaw.name + " "
+                return names
+            return None
+        else:
+            return None
+
+
+family_members = []
+family_members_names = []
+
+King_Shan = FamilyTree("King-Shan", "Male")
+Queen_Anga = FamilyTree("Queen-Anga", "Female")
+King_Shan.add_spouse(Queen_Anga)
+Chit = FamilyTree("Chit", "Male")
+Amba = FamilyTree("Amba", "Female")
+Chit.add_spouse(Amba)
+Ish = FamilyTree("Ish", "Male")
+Vich = FamilyTree("Vich","Male")
+Lika = FamilyTree("Lika", "Female")
+Vich.add_spouse(Lika)
+Aras = FamilyTree("Aras", "Male")
+Chitra = FamilyTree("Chitra", "Female")
+Aras.add_spouse(Chitra)
+Satya = FamilyTree("Satya", "Female")
+Vyan = FamilyTree("Vyan", "Male")
+Satya.add_spouse(Vyan)
+Queen_Anga.add_child(Chit)
+Queen_Anga.add_child(Ish)
+Queen_Anga.add_child(Vich)
+Queen_Anga.add_child(Aras)
+Queen_Anga.add_child(Satya)
+Dritha = FamilyTree("Dritha", "Female")
+Jaya = FamilyTree("Jaya", "Male")
+Dritha.add_spouse(Jaya)
+Tritha = FamilyTree("Tritha", "Female")
+Vritha = FamilyTree("Vritha", "Male")
+Amba.add_child(Dritha)
+Amba.add_child(Tritha)
+Amba.add_child(Vritha)
+Yodhan = FamilyTree("Yodhan", "Male")
+Dritha.add_child(Yodhan)
+Vila = FamilyTree("Vila", "Female")
+Chika = FamilyTree("Chika", "Female")
+Lika.add_child(Vila)
+Lika.add_child(Chika)
+Arit = FamilyTree("Arit", "Male")
+Jnki = FamilyTree("Jnki", "Female")
+Arit.add_spouse(Jnki)
+Ahit = FamilyTree("Ahit", "Male")
+Chitra.add_child(Jnki)
+Chitra.add_child(Ahit)
+Laki = FamilyTree("Laki", "Male")
+Lavnya = FamilyTree("Lavnya", "Female")
+Jnki.add_child(Laki)
+Jnki.add_child(Lavnya)
+Satvy = FamilyTree("Satvy", "Female")
+Asva = FamilyTree("Asva", "Male")
+Satvy.add_spouse(Asva)
+Satya.add_child(Asva)
+Krpi = FamilyTree("Krpi", "Female")
+Vyas = FamilyTree("Vyas", "Male")
+Krpi.add_spouse(Vyas)
+Satya.add_child(Vyas)
+Atya = FamilyTree("Atya", "Female")
+Satya.add_child(Atya)
+Vasa = FamilyTree("Vasa", "Male")
+Satvy.add_child(Vasa)
+Kriya = FamilyTree("Kriya", "Male")
+Krithi = FamilyTree("Krithi", "Female")
+Krpi.add_child(Kriya)
+Krpi.add_child(Krithi)
